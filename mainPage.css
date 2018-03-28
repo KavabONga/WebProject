@@ -1,0 +1,34 @@
+html{
+    background-color:#FFFFFF;
+    font-size:200%;
+    height: 95%;
+}
+body{
+    background-color:#0000FF;
+    height:100%;
+}
+#leftDiv{
+    background-color:#FF0000;
+    float:left;
+    width:20%;
+    margin:2% 1%;
+    height:92%;
+}
+#rightDiv{
+    background-color:#00FF00;
+    float:right;
+    width:75%;
+    margin:2% 1%;
+    height:92%;
+}
+#textInput{
+    width:95%;
+    margin:1% 2%;
+    height: 90%;
+    resize:none;
+}
+#someButton{
+    margin:20px 5%;
+    width:89%;
+    font-size:400%;
+}
