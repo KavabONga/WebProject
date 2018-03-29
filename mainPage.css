@@ -1,25 +1,35 @@
 html{
     background-color:#FFFFFF;
     font-size:200%;
-    height: 95%;
+    height: 98%;
+    padding:0px;
+    margin:0px;
 }
 body{
     background-color:#0000FF;
     height:100%;
 }
-#leftDiv{
+#Title {
+    font-weight:400;
+    font-size:200%;
+    margin:1% auto;
+    width:70%;
+    text-align:center;
+    background-color:#FFFF00;
+}
+#leftWrap{
     background-color:#FF0000;
     float:left;
     width:20%;
-    margin:2% 1%;
-    height:92%;
+    margin:1% 1%;
+    height:96%;
 }
-#rightDiv{
+#rightWrap{
     background-color:#00FF00;
     float:right;
     width:75%;
-    margin:2% 1%;
-    height:92%;
+    margin:1% 1%;
+    height:96%;
 }
 #textInput{
     width:95%;
@@ -28,7 +38,8 @@ body{
     resize:none;
 }
 #someButton{
-    margin:20px 5%;
+    margin:3% 5%;
     width:89%;
     font-size:400%;
+    background-color: #DDDDDD;
 }
