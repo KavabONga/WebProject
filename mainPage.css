@@ -31,6 +31,7 @@ body{
     width:75%;
     margin:1% 1%;
     height:96%;
+    font-size:3vw;
 }
 #marker{
     width:100%;
@@ -58,6 +59,8 @@ body{
     background-color:transparent;
     font: 20px 'Open Sans';
     color:transparent;
+    white-space: pre-wrap;
+	word-wrap: break-word;
 }
 #someButton{
     margin:3% 5%;
@@ -68,5 +71,5 @@ body{
 }
 
 high{
-    background-color:red;
+  background-color:rgb(255,0,0, 0.3);
 }
