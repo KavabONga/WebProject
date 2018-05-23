@@ -1,2 +1,2 @@
 # WebProject
-A simple repository for one project
+Repository for my Individual Final Work for HSE lyceum.
