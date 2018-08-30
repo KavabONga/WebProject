@@ -1,31 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="mainPage.css">
     <script src="mainScript.js"></script>
 </head>
+
 <body>
-<div id="leftWrap">
-    <div id="Title">Termarker</div>
-    <button id="someButton">Press me NOW</button>
-</div>
-<script></script>
-<div id="rightWrap">
-    Look at me now
-    <div id="marker">
-        <div id="highlighter"></div>
-        <textarea id="textInput" placeholder="Put your text in here" oninput="highlighter.innerHTML = '<high>' + this.value + '</high>'"></textarea>
+    <div id="leftWrap">
+        <div id="Title">Termarker</div>
+        <button id="someButton">Press me NOW</button>
     </div>
-    <script>
+    <script></script>
+    <div id="rightWrap">
+        Look at me now
+        <div id="marker">
+            <div id="highlighter"></div>
+            <textarea id="textInput" placeholder="Put your text in here"></textarea>
+            <script>
+                textInput.oninput = function() {
+                    highlighter.innerHTML = "<high>" + this.value + "</high>";
+                }
+            </script>
+        </div>
+        <script>
             var h = document.getElementById('highlighter');
             var inp = document.getElementById('textInput');
             h.style.left = inp.offsetLeft + 'px';
             h.style.top = inp.offsetTop + 'px';
             h.style.width = inp.clientWidth + 'px';
             h.style.height = inp.clientHeight + 'px';
-    </script>
-</div>
+        </script>
+    </div>
 </body>
+
 </html>
