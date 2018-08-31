@@ -6,6 +6,7 @@
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="mainPage.css">
     <script src="mainScript.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -26,12 +27,12 @@
             </script>
         </div>
         <script>
-            var h = document.getElementById('highlighter');
-            var inp = document.getElementById('textInput');
-            h.style.left = inp.offsetLeft + 'px';
-            h.style.top = inp.offsetTop + 'px';
-            h.style.width = inp.clientWidth + 'px';
-            h.style.height = inp.clientHeight + 'px';
+            let h = $('#highlighter');
+            let inp = $('#textInput');
+            h.css('left', inp.offset().left + 'px');
+            h.css('top', inp.offset().top + 'px');
+            h.css('width', inp.width() + 'px');
+            h.css('height', inp.height() + 'px');
         </script>
     </div>
 </body>
