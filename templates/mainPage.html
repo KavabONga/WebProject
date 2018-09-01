@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href={{url_for('static', filename='mainPage.css')}}>
+    <script src={{url_for('static', filename='mainPage.js')}}></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="leftWrap">
+        <div id="Title">Termarker</div>
+        <button id="someButton">Press me NOW</button>
+    </div>
+    <script></script>
+    <div id="rightWrap">
+        Look at me now
+        <div id="marker">
+            <div id="highlighter"></div>
+            <textarea id="textInput" placeholder="Put your text in here"></textarea>
+            <script>
+                textInput.oninput = function() {
+                    highlighter.innerHTML = "<high>" + this.value + "</high>";
+                }
+            </script>
+        </div>
+        <script>
+            let h = $('#highlighter');
+            let inp = $('#textInput');
+            h.css('left', inp.offset().left + 'px');
+            h.css('top', inp.offset().top + 'px');
+            h.css('width', inp.width() + 'px');
+            h.css('height', inp.height() + 'px');
+        </script>
+    </div>
+</body>
+
+</html>
