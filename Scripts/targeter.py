@@ -1,14 +1,18 @@
 import searchers
+from nltk.stem.snowball import RussianStemmer
 
 class Targeter:
+
     @staticmethod
-    def check_word_root(word1, word2):
-        pass
-        # TODO: This algorithm may be smart and use NLTK or be dumb and just look for matching characters
+    def word_root_match(word1, word2, stemmer):
+        return stemmer.stem(word1) == stemmer.stem(word2)
 
     def match_word(self, word):
-        pass
-        # TODO: Implement an algorithm that returns the TermLink if the word matches it or None if it's not a term
+        for term_link in self.term_links:
+            for one_term in term_link.words:
+                if word_root_match(one_term, word):
+                    return term_link
 
     def __init__(term_links):
         self.term_links = term_links
+        self.stemmer = RussianStemmer()
