@@ -9,10 +9,10 @@
     <script src={{url_for('static', filename='js/jquery.min.js')}}></script>
 </head>
 
-<body>
+<body onload="setupPage()">
     <div id="leftWrap">
         <div id="Title">Termarker</div>
-        <button id="someButton">Press me NOW</button>
+        <button id="sendButton">Highlight text</button>
         <div style="width:90%; margin:0 5%;">
             <select id="modeSelect" style="width:100%;font-size:1.3vw;" name="What">
                 <option value="" selected disabled hidden>Choose the mode here</option>
@@ -27,20 +27,12 @@
         <div id="marker">
             <div id="highlighter"></div>
             <textarea id="textInput" placeholder="Put your text in here"></textarea>
-            <script>
+            <!--script>
                 textInput.oninput = function() {
                     highlighter.innerHTML = "<high>" + this.value + "</high>";
                 }
-            </script>
+            </script-->
         </div>
-        <script>
-            let h = $('#highlighter');
-            let inp = $('#textInput');
-            h.css('left', inp.offset().left + 'px');
-            h.css('top', inp.offset().top + 'px');
-            h.css('width', inp.width() + 'px');
-            h.css('height', inp.height() + 'px');
-        </script>
     </div>
 </body>
 

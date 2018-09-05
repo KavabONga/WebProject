@@ -27,7 +27,7 @@ class Searcher:
     # (Maybe sometime I'll be able to highlight double-word terms, but i'd need ML for that)
     @staticmethod
     def split_words(line):
-        return map(lambda x: x.strip(' '), re.split('[\.,]', line))
+        return fmap(lambda x: x.strip(' '), re.split('[\.,]', line))
 
     # Returns list of TermLinks extracted from mainApiPage
     @classmethod
@@ -49,8 +49,9 @@ class BiologySearcher(Searcher):
                 '/free/6-biologiya/25-slovar_biologicheskih_terminov/stages'),
             a_tags
         )
+        pre_link = "https://licey.net"
         return fmap(
-            lambda a: TermLink(cls.split_words(a.text), a.get('href')),
+            lambda a: TermLink(cls.split_words(a.text), pre_link + a.get('href')),
             right_tags
         )
 
