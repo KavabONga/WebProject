@@ -58,6 +58,7 @@ body {
     font-size: 15px;
     border: none;
     font: 20px 'Open Sans';
+    box-sizing:border-box;
 }
 
 #highlighter {
@@ -71,6 +72,8 @@ body {
     color: transparent;
     white-space: pre-wrap;
     word-wrap: break-word;
+    overflow: scroll;
+    overflow-x:hidden;
 }
 
 #sendButton {

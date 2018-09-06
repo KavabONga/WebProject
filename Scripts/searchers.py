@@ -10,15 +10,21 @@ def ffilter(f, ar):
 def fmap(f, ar):
     return list(map(f, ar))
 
-
 class TermLink:
+    def __init__(self, word, link):
+        self.word = word
+        self.link = link
+    def __str__(self):
+        return "{{word={} link=\"{}\"}}".format(self.word, self.link)
+class ManyTermsLink:
     def __init__(self, words, link):
         self.words = words
         self.link = link
 
     def __str__(self):
         return "{{words={} link=\"{}\"}}".format(self.words, self.link)
-
+    def to_term_links(self):
+        return [TermLink(w, self.link) for w in self.words]
 
 class Searcher:
     mainApiPage = ""
@@ -51,7 +57,7 @@ class BiologySearcher(Searcher):
         )
         pre_link = "https://licey.net"
         return fmap(
-            lambda a: TermLink(cls.split_words(a.text), pre_link + a.get('href')),
+            lambda a: ManyTermsLink(cls.split_words(a.text), pre_link + a.get('href')),
             right_tags
         )
 
@@ -69,7 +75,7 @@ class GeographySearcher(Searcher):
         )
         pre_link="http://www.ecosystema.ru/07referats/slovgeo/"
         return fmap(
-            lambda s: TermLink(cls.split_words(s.text), pre_link + s.get('href')),
+            lambda s: ManyTermsLink(cls.split_words(s.text), pre_link + s.get('href')),
             right_tags
         )
 class PhysicalSearcher(Searcher):
@@ -101,6 +107,6 @@ class PhysicalSearcher(Searcher):
     def get_term_links(cls):
         links = cls.get_next_physical_links(cls.mainApiPage)
         return fmap(
-            lambda a: TermLink(cls.split_words(a.text), 'https://ru.wiktionary.org' + a.get('href')),
+            lambda a: ManyTermsLink(cls.split_words(a.text), 'https://ru.wiktionary.org' + a.get('href')),
             links
         )

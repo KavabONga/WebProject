@@ -30,6 +30,9 @@ function highlightText() {
             console.log(result); // Just for debugging
             $("#highlighter").html(result.highlightedText);
             $("#highlighter").css("pointer-events", "auto");
+            $("#highlighter").scroll(textAreaScrollUpdate);
+            textAreaScrollUpdate();
+            window.highlightActivated = true;
         },
         error: function(xhr, message) {
             console.log("Error: " + message);
@@ -39,13 +42,20 @@ function highlightText() {
 function placeHighlighter() {
     let h = $('#highlighter');
     let inp = $('#textInput');
-    h.css('left', inp.offset().left + 'px');
-    h.css('top', inp.offset().top + 'px');
-    h.css('width', inp.width() + 'px');
-    h.css('height', inp.height() + 'px');
+    h.offset(inp.offset());
+    h.width(inp.width());
+    h.height(inp.height());
+    h.scrollTop(inp.scrollTop());
 }
+
+function textAreaScrollUpdate() {
+    $("#textInput").scrollTop($("#highlighter").scrollTop())
+}
+
 function setupPage() {
+    window.highlightActivated = false
     $("#sendButton").on("click", highlightText);
+    $("#sendButton").on("click", placeHighlighter);
     placeHighlighter();
     $(window).resize(placeHighlighter);
 }
