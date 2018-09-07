@@ -13,12 +13,27 @@ HTMLTextAreaElement.prototype.setLengthLimit = function(limit) {
         this.value = this.value.slice(0, limit);
     }
 }
+function status(value) {
+    $("#status").html(value);
+}
+function activateHighlight(highlightedText) {
+    $("#highlighter").html(highlightedText);
+    $("#highlighter").css("pointer-events", "auto");
+    $("#highlighter").scroll(textAreaScrollUpdate);
+    textAreaScrollUpdate();
+    window.highlightActivated = true;
+}
+
 function highlightText() {
+    window.timer = 0;
+    window.loadAnimationId = setInterval(function() {
+        status("Requesting highlight" + ".".repeat(window.timer + 1));
+        window.timer = (window.timer + 1) % 3;
+    }, 500)
     if (!$("#modeSelect").val()) {
-        console.log("No mode specified");
+        status("No mode specified");
         return;
     }
-    console.log("Requesting highlight");
     $.ajax({
         url: "/highlightWithMode",
         //timeout: 5000,
@@ -28,14 +43,14 @@ function highlightText() {
         },
         success: function(result) {
             console.log(result); // Just for debugging
-            $("#highlighter").html(result.highlightedText);
-            $("#highlighter").css("pointer-events", "auto");
-            $("#highlighter").scroll(textAreaScrollUpdate);
-            textAreaScrollUpdate();
-            window.highlightActivated = true;
+            activateHighlight(result.highlightedText);
+            status("Done");
         },
         error: function(xhr, message) {
-            console.log("Error: " + message);
+            status("Error: " + message);
+        },
+        complete: function() {
+            clearInterval(window.loadAnimationId);
         }
     })
 }
@@ -53,7 +68,6 @@ function textAreaScrollUpdate() {
 }
 
 function setupPage() {
-    window.highlightActivated = false
     $("#sendButton").on("click", highlightText);
     $("#sendButton").on("click", placeHighlighter);
     placeHighlighter();
