@@ -13,30 +13,34 @@ HTMLTextAreaElement.prototype.setLengthLimit = function(limit) {
         this.value = this.value.slice(0, limit);
     }
 }
+function textAreaScrollUpdate() {
+    $("#textInput").scrollTop($("#highlighter").scrollTop())
+}
+
 function status(value) {
     $("#status").html(value);
 }
 function activateHighlight(highlightedText) {
     $("#highlighter").html(highlightedText);
     $("#highlighter").css("pointer-events", "auto");
-    $("#highlighter").scroll(textAreaScrollUpdate);
     textAreaScrollUpdate();
     window.highlightActivated = true;
+    $("#highlightUndoer").prop("disabled", false);
 }
 
 function highlightText() {
+    if (!$("#modeSelect").val()) {
+        status("No mode specified");
+        return;
+    }
     window.timer = 0;
     window.loadAnimationId = setInterval(function() {
         status("Requesting highlight" + ".".repeat(window.timer + 1));
         window.timer = (window.timer + 1) % 3;
     }, 500)
-    if (!$("#modeSelect").val()) {
-        status("No mode specified");
-        return;
-    }
     $.ajax({
         url: "/highlightWithMode",
-        //timeout: 5000,
+        timeout: 5000,
         data: {
             mode: $("#modeSelect").val(),
             text: $("#textInput").val()
@@ -44,13 +48,12 @@ function highlightText() {
         success: function(result) {
             console.log(result); // Just for debugging
             activateHighlight(result.highlightedText);
+            clearInterval(window.loadAnimationId);
             status("Done");
         },
         error: function(xhr, message) {
-            status("Error: " + message);
-        },
-        complete: function() {
             clearInterval(window.loadAnimationId);
+            status("Error: " + message);
         }
     })
 }
@@ -63,13 +66,21 @@ function placeHighlighter() {
     h.scrollTop(inp.scrollTop());
 }
 
-function textAreaScrollUpdate() {
-    $("#textInput").scrollTop($("#highlighter").scrollTop())
+function undoHighlight() {
+    if (!window.highlightActivated)
+        return;
+    window.highlightActivated = false;
+    $("#highlighter").html("");
+    $("#highlighter").css("pointer-events", "none");
+    $("#highlightUndoer").prop("disabled", true);
 }
 
 function setupPage() {
+    window.highlightActivated = false;
     $("#sendButton").on("click", highlightText);
     $("#sendButton").on("click", placeHighlighter);
+    $("#highlighter").scroll(textAreaScrollUpdate);
     placeHighlighter();
     $(window).resize(placeHighlighter);
+    $("#highlightUndoer").click(undoHighlight);
 }

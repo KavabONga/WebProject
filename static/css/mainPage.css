@@ -9,8 +9,7 @@ html {
 }
 
 body {
-    /* background-color: #0000FF; */
-    /* border: 1px solid rgb(106, 106, 106); */
+    min-height:550px;
     height: 100%;
     background-color: rgb(228, 228, 228);
 }
@@ -19,7 +18,7 @@ body {
     font-weight: 400;
     font-size: 2.5vw;
     margin: 1% auto;
-    width: 70%;
+    width: 80%;
     text-align: center;
     background-color: rgb(228, 228, 228);
 }
@@ -44,7 +43,7 @@ body {
 #marker {
     width: 95%;
     height: 92%;
-    margin: 1.5% 2%;
+    margin: 1% 2%;
     padding: 0;
     display: block;
 }
@@ -77,8 +76,7 @@ body {
 }
 
 #sendButton {
-    margin: 3% 5%;
-    width: 89%;
+    margin: 3% 0;
     font-size: 3vw;
     height: auto;
     background-color: #DDDDDD;
@@ -91,7 +89,26 @@ high {
 
 #status {
     text-align:right;
-    margin-left:60%;
-    font-size:1.9vw;
+    font-size:2.5vh;
+    position: relative;
+    top:0;
+    right:3%;
     padding-right:3%;
+    vertical-align:middle;
+}
+
+#upperPart {
+    height:90%;
+}
+
+#modeSelect {
+    width: 100%;
+    font-size: 1.3vw;
+}
+#lowerPart {
+    height:10%;
+}
+#highlightUndoer {
+    width:100%;
+    font-size:2vh;
 }

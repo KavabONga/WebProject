@@ -11,16 +11,24 @@
 
 <body onload="setupPage()">
     <div id="leftWrap">
-        <div id="Title">Termarker</div>
-        <button id="sendButton">Highlight text</button>
-        <div style="width:90%; margin:0 5%;">
-            <select id="modeSelect" style="width:100%;font-size:1.3vw;" name="What">
-                <option value="" selected disabled hidden>Choose the mode here</option>
-                {% for mode in availableModes %}
-                    <option value={{mode}}><p>{{mode}}</p></option>
-                {% endfor %}
-            </select>
+        <div id="upperPart">
+            <div id="Title">Wikinator</div>
+            <div style="width:90%; margin:0 auto;">
+                <button id="sendButton">Пометить термины</button>
+                <select id="modeSelect">
+                    <option value="" selected disabled hidden>Choose the mode here</option>
+                    {% for mode in availableModes %}
+                        <option value={{mode}}><p>{{mode}}</p></option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
+        <div id="lowerPart">
+            <div style="width:50%; margin:0 auto; position:relative;bottom:0;">
+                <button id="highlightUndoer" disabled>Отмена</button>
+            </div>
+        </div>
+
     </div>
     <script></script>
     <div id="rightWrap">
@@ -28,7 +36,9 @@
             <div id="highlighter" class="textField"></div>
             <textarea id="textInput" class="textField" placeholder="Put your text in here"></textarea>
         </div>
-        <div id="status">Whatever this is</div>
+        <div style="width:100%;">
+            <div id="status">Статус</div>
+        </div>
     </div>
 </body>
 
