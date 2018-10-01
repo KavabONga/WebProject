@@ -9,8 +9,8 @@ SEARCHERS = {
 
 class TermHighlighter:
     @staticmethod
-    def highlight_term(word, term_link):
-        return "<a href={}><high>{}</high></a>".format(term_link, word)
+    def highlight_term(word, term_link, definition):
+        return "<a href={} definition={}><high>{}</high></a>".format(term_link, definition, word)
     def __init__(self, modes):
         self.searchers_dict = {k : SEARCHERS[k].get_term_links() for k in modes}
         self.modes = modes
@@ -26,8 +26,8 @@ class TermHighlighter:
         for s in seps:
             if s in text:
                 return s.join([self.highlight_text(t) for t in text.split(s)])
-        link = self.targeter.match_word(text)
-        if link is None:
+        parsed_word = self.targeter.match_word(text)
+        if parsed_word is None:
             return text
         else:
-            return TermHighlighter.highlight_term(text, link)
+            return TermHighlighter.highlight_term(text, parsed_word['link'], parsed_word['definition'])
