@@ -12,7 +12,7 @@ class TermHighlighter:
     def highlight_term(word, term_link, definition):
         return "<a href={} definition={}><high>{}</high></a>".format(term_link, definition, word)
     def __init__(self, modes):
-        self.searchers_dict = {k : SEARCHERS[k].get_term_links() for k in modes}
+        self.searchers_dict = {k : SEARCHERS[k].get_term_links() for k in modes if k in SEARCHERS}
         self.modes = modes
         self.targeter = None
     def use_mode(self, mode):

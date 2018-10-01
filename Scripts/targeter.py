@@ -1,5 +1,7 @@
 from Scripts import searchers
 from nltk.stem.snowball import RussianStemmer
+from requests import get
+from bs4 import BeautifulSoup
 
 class Targeter:
     @staticmethod
@@ -46,7 +48,7 @@ class TermListTargeter(Targeter):
 class WikiTargeter(Targeter):
     @staticmethod
     def is_definition_line(line, word):
-        first_word = ''.join([c for c in line.split()[0] if (ord('а')<= ord(c) <= ord('я')) or (ord('А')<= ord(c) <= ord('Я'))])
+        first_word = ''.join([c for c in line[line.find(' ')] if (ord('а')<= ord(c) <= ord('я')) or (ord('А')<= ord(c) <= ord('Я'))])
         print(first_word, word)
         return (first_word == word) and len(line.split()) > 2
     def get_url(self, pageid):
@@ -69,17 +71,19 @@ class WikiTargeter(Targeter):
             'action' : 'parse',
             'page' : word
         }
-        lines = BeautifulSoup(get(self.wiki, PARAMS).json()['parse']['text']['*']).findAll('p')
+        lines = BeautifulSoup(get(self.wiki, PARAMS).json()['parse']['text']['*']).findAll('p')[:5]
         for l in lines:
-            if is_definition_line(l.text, word):
+            if WikiTargeter.is_definition_line(l.text, word):
                 return l.text
     def search_page(self, word):
+        print('Searching for ' + word)
         PARAMS = {
             'format' : 'json',
             'utf8' : '',
             'action' : 'query',
             'list':'prefixsearch',
-            'pssearch' : word
+            'pssearch' : word,
+            'pslimit' : 1
         }
         try:
             return get(self.wiki, PARAMS).json()['query']['prefixsearch'][0]
@@ -87,9 +91,13 @@ class WikiTargeter(Targeter):
             return None
     def __init__(self, api='https://ru.wikipedia.org/w/api.php'):
         self.wiki = api
+        self.stemmer = RussianStemmer()
     def match_word(self, word):
-        page = search_page(word)
+        page = self.search_page(self.stemmer.stem(word))
+        print('Нашёл ' + str(page))
+        if page is None:
+            return None
         return {
-            'link' : get_url(page['pageid']),
-            'definition' : get_definition(page['title'])
+            'link' : self.get_url(page['pageid']),
+            'definition' : self.get_definition(page['title'])
         }

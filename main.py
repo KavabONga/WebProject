@@ -5,6 +5,12 @@ import os
 from Scripts.term_highlighter import TermHighlighter
 
 app = Flask(__name__, )
+MODES = ["Biology", "Geography", "Physics", "Wiki"]
+try:
+    term_highlighter = TermHighlighter(MODES)
+except:
+    term_highlighter = None
+
 @app.route('/')
 def mainPage():
     if term_highlighter is None:
@@ -21,8 +27,3 @@ def highlightText():
         return jsonify(response)
     else:
         pass
-MODES = ["Biology", "Geography", "Physics"]
-try:
-    term_highlighter = TermHighlighter(MODES)
-except:
-    term_highlighter = None

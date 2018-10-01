@@ -43,9 +43,12 @@ function highlightText() {
         window.timer = (window.timer + 1) % 3;
     }, 500)
     $("#sendButton").prop("disabled", true);
+    var reqTimeout = 5000;
+    if ($("#modeSelect").val() == "Wiki")
+        reqTimeout = 0;
     $.ajax({
         url: "/highlightWithMode",
-        timeout: 5000,
+        timeout: reqTimeout,
         data: {
             mode: $("#modeSelect").val(),
             text: $("#textInput").val()
