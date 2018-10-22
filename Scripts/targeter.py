@@ -2,8 +2,10 @@ from Scripts import searchers
 from nltk.stem.snowball import RussianStemmer
 from requests import get
 from bs4 import BeautifulSoup
+import re
 
 class Targeter:
+    many_targeting = False
     @staticmethod
     def word_root_match(word1, word2, stemmer):
         return stemmer.stem(word1) == stemmer.stem(word2)
@@ -12,92 +14,90 @@ class Targeter:
             'link' : None,
             'definition' : None
         }
+    @classmethod
+    def targets_many(cls):
+        return cls.many_targeting
 
 class TermListTargeter(Targeter):
-
+    many_targeting = False
     @staticmethod
-    def to_links_searcher(many_terms_links, stemmer):
-        term_links = []
-        for t in many_terms_links:
-            term_links += [(stemmer.stem(tt.word), tt.link) for tt in t.to_term_links()]
-        return sorted(term_links)
+    def to_links_searcher(terms_links, stemmer):
+        future_links_searcher = {}
+        for t in terms_links:
+            future_links_searcher[stemmer.stem(t.word)] = t.link
+        return future_links_searcher
 
-    def bin_find_link(self, stemmed_word):
-        l, r = -1, len(self.links_searcher)
-        while r - l > 1:
-            m = (r + l) // 2
-            if self.links_searcher[m][0] >= stemmed_word:
-                r = m
-            else:
-                l = m
-        if r == len(self.links_searcher) or self.links_searcher[r][0] != stemmed_word:
-            return None
-        else:
-            return self.links_searcher[r][1]
+    def find_link(self, stemmed_word):
+        return self.links_searcher.get(stemmed_word)
 
     def match_word(self, word):
-        return {
-            'link' : self.bin_find_link(self.stemmer.stem(word)),
-            'definition' : None
-        }
+        found_link = self.find_link(self.stemmer.stem(word))
+        if found_link is None:
+            return None
+        else:
+            return {
+                'link' : found_link,
+                'definition' : None
+            }
 
-    def __init__(self, many_terms_links):
+    def __init__(self, terms_links):
         self.stemmer = RussianStemmer()
-        self.links_searcher = TermListTargeter.to_links_searcher(many_terms_links, self.stemmer)
+        self.links_searcher = TermListTargeter.to_links_searcher(terms_links, self.stemmer)
 
 class WikiTargeter(Targeter):
-    @staticmethod
-    def is_definition_line(line, word):
-        first_word = ''.join([c for c in line[line.find(' ')] if (ord('а')<= ord(c) <= ord('я')) or (ord('А')<= ord(c) <= ord('Я'))])
-        print(first_word, word)
-        return (first_word == word) and len(line.split()) > 2
-    def get_url(self, pageid):
-        PARAMS = {
-            'format' : 'json',
-            'action' : 'query',
-            'pageids' : pageid,
-            'prop' : 'info',
-            'inprop' : 'url',
-            'utf8':''
-        }
-        try:
-            return get(self.wiki, PARAMS).json()['query']['pages'][str(pageid)]['canonicalurl']
-        except:
-            return None
-    def get_definition(self, word):
+    many_targeting = False
+    def match_word(self, word):
+        # print('Searching for ' + word)
         PARAMS = {
             'format' : 'json',
             'utf8' : '',
-            'action' : 'parse',
-            'page' : word
-        }
-        lines = BeautifulSoup(get(self.wiki, PARAMS).json()['parse']['text']['*']).findAll('p')[:5]
-        for l in lines:
-            if WikiTargeter.is_definition_line(l.text, word):
-                return l.text
-    def search_page(self, word):
-        print('Searching for ' + word)
-        PARAMS = {
-            'format' : 'json',
-            'utf8' : '',
-            'action' : 'query',
-            'list':'prefixsearch',
-            'pssearch' : word,
-            'pslimit' : 1
+            'action':'opensearch',
+            'search' : word,
+            'limit' : 2
         }
         try:
-            return get(self.wiki, PARAMS).json()['query']['prefixsearch'][0]
+            resp = get(self.wiki, PARAMS).json()
+            if resp[2][0].endswith(":"):
+                return {
+                    'link' : resp[3][1],
+                    'definition' : resp[2][1]
+                }
+            else:
+                return {
+                    'link' : resp[3][0],
+                    'definition' : resp[2][0]
+                }
         except:
             return None
     def __init__(self, api='https://ru.wikipedia.org/w/api.php'):
         self.wiki = api
         self.stemmer = RussianStemmer()
-    def match_word(self, word):
-        page = self.search_page(self.stemmer.stem(word))
-        print('Нашёл ' + str(page))
-        if page is None:
-            return None
-        return {
-            'link' : self.get_url(page['pageid']),
-            'definition' : self.get_definition(page['title'])
+class WiktionaryTargeter(Targeter):
+    many_targeting = True
+    def __init__(self, api='https://ru.wiktionary.org/w/api.php', max_words = 50):
+        self.wiktionary = api
+        self.max_words = max_words
+    def get_links(self, words):
+        print(words)
+        PARAMS = {
+            'action' : 'query',
+            'titles' : '|'.join(words),
+            'prop' : 'info',
+            'inprop' : 'url',
+            'format' : 'json'
         }
+        resp = get(self.wiktionary, PARAMS).json()['query']['pages']
+        word_dict = {}
+        for k, v in resp.items():
+            if int(k) >= 0:
+                word_dict[v['title']] = v.get('fullurl')
+        return [word_dict.get(w) for w in words]
+    def match_words(self, words):
+        words = list(filter(lambda x : re.match(r'^[а-я](([а-я]|\-)+[а-я])?$', x), words))
+        links = []
+        for i in range(0, len(words), self.max_words):
+            links += self.get_links(words[i : i + self.max_words])
+        if links is None:
+            return links
+        else:
+            return {words[i] : {'link' : links[i], 'definition' : None} for i in range(len(words)) if links[i] is not None}

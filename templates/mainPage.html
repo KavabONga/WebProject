@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href={{url_for('static', filename='css/mainPage.css')}}>
-    <script src={{url_for('static', filename='js/mainScript.js')}}></script>
     <script src={{url_for('static', filename='js/jquery.min.js')}}></script>
+    <script src={{url_for('static', filename='js/jquery.balloon.min.js')}}></script>
+    <script src={{url_for('static', filename='js/mainScript.js')}}></script>
 </head>
 
 <body onload="setupPage()">
@@ -14,7 +14,7 @@
         <div id="upperPart">
             <div id="Title">Wikinator</div>
             <div style="width:90%; margin:0 auto;">
-                <button id="sendButton">Пометить термины</button>
+                <button id="sendButton">Highlight terms</button>
                 <select id="modeSelect">
                     <option value="" selected disabled hidden>Choose the mode here</option>
                     {% for mode in availableModes %}
@@ -25,7 +25,7 @@
         </div>
         <div id="lowerPart">
             <div style="width:50%; margin:0 auto; position:relative;bottom:0;">
-                <button id="highlightUndoer" disabled>Отмена</button>
+                <button id="highlightUndoer" disabled>Cancel</button>
             </div>
         </div>
 

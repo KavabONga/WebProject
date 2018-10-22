@@ -5,11 +5,14 @@ import os
 from Scripts.term_highlighter import TermHighlighter
 
 app = Flask(__name__, )
-MODES = ["Biology", "Geography", "Physics", "Wiki"]
-try:
-    term_highlighter = TermHighlighter(MODES)
-except:
-    term_highlighter = None
+MODES = ["Biology", "Geography", "Physics", "Wiki", "Wiktionary", "Astronomy"]
+# try:
+term_highlighter = TermHighlighter(MODES)
+# except:
+#     term_highlighter = None
+#     print("NOT SUCCESSFUL")
+
+# ToDo: Implement fast processing of Wiki requests
 
 @app.route('/')
 def mainPage():

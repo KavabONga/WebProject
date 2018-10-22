@@ -39,6 +39,9 @@ class Searcher:
     @classmethod
     def get_term_links(cls):
         pass
+    @classmethod
+    def is_word(cls, line):
+        return re.match(r'^[а-яА-Я]+$', line)
 
 
 class BiologySearcher(Searcher):
@@ -52,12 +55,13 @@ class BiologySearcher(Searcher):
             lambda s: s.text.capitalize() == s.text and \
             s.get('href') is not None and \
             s.get('href').startswith(
-                '/free/6-biologiya/25-slovar_biologicheskih_terminov/stages'),
+                '/free/6-biologiya/25-slovar_biologicheskih_terminov/stages') and \
+            cls.is_word(s.text),
             a_tags
         )
         pre_link = "https://licey.net"
         return fmap(
-            lambda a: ManyTermsLink(cls.split_words(a.text), pre_link + a.get('href')),
+            lambda a: TermLink(a.text, pre_link + a.get('href')),
             right_tags
         )
 
@@ -69,26 +73,24 @@ class GeographySearcher(Searcher):
         soup=BeautifulSoup(requests.get(cls.mainApiPage).text, 'html.parser')
         a_tags=soup.findAll("a")
         right_tags=ffilter(
-            lambda s: s.get('href') is not None and bool(
-                re.match(r'\d+\.htm', s.get('href'))),
+            lambda s: s.get('href') is not None and \
+            re.match(r'\d+\.htm', s.get('href')) and \
+            cls.is_word(s.text),
             a_tags
         )
         pre_link="http://www.ecosystema.ru/07referats/slovgeo/"
         return fmap(
-            lambda s: ManyTermsLink(cls.split_words(s.text), pre_link + s.get('href')),
+            lambda s: TermLink(s.text, pre_link + s.get('href')),
             right_tags
         )
 class PhysicalSearcher(Searcher):
     mainApiPage='https://ru.wiktionary.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%A4%D0%B8%D0%B7%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5_%D1%82%D0%B5%D1%80%D0%BC%D0%B8%D0%BD%D1%8B/ru'
     @classmethod
     def is_correct_physical_link(cls, a):
-        r=re.match(r'[а-я]+', a.text)
-        if r is None:
+        if cls.is_word(a.text) is None:
             return False
-        l=r.end() - r.start()
         return a.get('href') is not None and \
                a.get('href').startswith('/wiki') and \
-               l == len(a.text) and \
                a.get('class') is None
     @classmethod
     def is_link_to_next(cls, a):
@@ -107,6 +109,35 @@ class PhysicalSearcher(Searcher):
     def get_term_links(cls):
         links = cls.get_next_physical_links(cls.mainApiPage)
         return fmap(
-            lambda a: ManyTermsLink(cls.split_words(a.text), 'https://ru.wiktionary.org' + a.get('href')),
+            lambda a: TermLink(a.text, 'https://ru.wiktionary.org' + a.get('href')),
             links
         )
+class AstronomicalSearcher(Searcher):
+    mainApiPage = 'http://www.astronet.ru/db/glossary/_e1'
+    @classmethod
+    def termlinks_from_url(cls, url):
+        if url is None:
+            return []
+        a_list = ffilter(
+            lambda a : a.get('href').startswith('/db/msg') and cls.is_word(a.text),
+            BeautifulSoup(requests.get(url).content, 'html.parser').findAll('a')
+        )
+        pre_link = 'http://www.astronet.ru'
+        return [TermLink(a.text, pre_link + a.get('href')) for a in a_list]
+    @classmethod
+    def get_term_links(cls):
+        b = BeautifulSoup(requests.get(cls.mainApiPage).content, 'html.parser')
+        termlinks = cls.termlinks_from_url(cls.mainApiPage)
+        letter_links = ffilter(
+            lambda a : len(a.text) == 1 and \
+             ord('А') <= ord(a.text) <= ord('Я'),
+            b.findAll('a')
+        )
+        letter_dict = {}
+        pre_link = 'http://www.astronet.ru'
+        for l in letter_links:
+            letter_dict[l.text] = pre_link + l.get('href')
+        for k, v in letter_dict.items():
+            if k != 'А':
+                termlinks += cls.termlinks_from_url(v)
+        return termlinks

@@ -8,6 +8,7 @@ String.prototype.format = function() {
     }
     return str;
 }
+
 HTMLTextAreaElement.prototype.setLengthLimit = function(limit) {
     this.on("input", function() {
         this.value = this.value.slice(0, limit);
@@ -29,6 +30,15 @@ function activateHighlight(highlightedText) {
     textAreaScrollUpdate();
     window.highlightActivated = true;
     $("#highlightUndoer").prop("disabled", false);
+    $("#highlightUndoer").css("border", "3px solid red");
+    $("high").filter(function(){
+        return this.hasAttribute('definition');
+    }).each(function(){
+        console.log(this);
+        $(this).balloon({
+            content: this.getAttribute("definition")
+        });
+    });
 }
 
 function highlightText() {
@@ -43,9 +53,9 @@ function highlightText() {
         window.timer = (window.timer + 1) % 3;
     }, 500)
     $("#sendButton").prop("disabled", true);
-    var reqTimeout = 5000;
+    var reqTimeout = 10000;
     if ($("#modeSelect").val() == "Wiki")
-        reqTimeout = 0;
+        reqTimeout = 0;+
     $.ajax({
         url: "/highlightWithMode",
         timeout: reqTimeout,
@@ -54,7 +64,7 @@ function highlightText() {
             text: $("#textInput").val()
         },
         success: function(result) {
-            console.log(result); // Just for debugging
+            //console.log(result); // Just for debugging
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
             status("Done");
@@ -85,6 +95,7 @@ function undoHighlight() {
     $("#highlighter").html("");
     $("#highlighter").css("pointer-events", "none");
     $("#highlightUndoer").prop("disabled", true);
+    $("#highlightUndoer").css("border", "");
 }
 
 function setupPage() {
@@ -99,4 +110,7 @@ function setupPage() {
 
 function addDefinitionBox(width, height, text) {
     box = $(document.body.appendChild(document.createElement("div")));
+    box.css("width", "25%");
+    box.css("position", "absolute");
+    box.height(12);
 }
