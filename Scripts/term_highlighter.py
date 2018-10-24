@@ -15,9 +15,9 @@ class TermHighlighter:
             return word
         else:
             if definition is None:
-                return "<a href={}><high>{}</high></a>".format(term_link, word)
+                return "<a href=\"{}\"><high>{}</high></a>".format(term_link, word)
             else:
-                return "<a href={} ><high definition={}>{}</high></a>".format(term_link, definition, word)
+                return "<a href=\"{}\"><high definition=\"{}\">{}</high></a>".format(term_link, definition, word)
     def __init__(self, modes):
         self.searchers_dict = {k : SEARCHERS[k].get_term_links() for k in modes if k in SEARCHERS}
         self.modes = modes

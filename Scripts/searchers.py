@@ -33,7 +33,7 @@ class Searcher:
     # (Maybe sometime I'll be able to highlight double-word terms, but i'd need ML for that)
     @staticmethod
     def split_words(line):
-        return fmap(lambda x: x.strip(' '), re.split('[\.,]', line))
+        return fmap(lambda x: x.strip(' '), re.split('[\\.,]', line))
 
     # Returns list of TermLinks extracted from mainApiPage
     @classmethod
@@ -64,6 +64,10 @@ class BiologySearcher(Searcher):
             lambda a: TermLink(a.text, pre_link + a.get('href')),
             right_tags
         )
+    @classmethod
+    def get_definition(cls, url):
+        dicts = BeautifulSoup(requests.get(url)).findAll("'.")
+
 
 
 class GeographySearcher(Searcher):

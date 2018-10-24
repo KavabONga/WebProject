@@ -25,6 +25,7 @@ function statusColor(color) {
     $("#status").css("color", color);
 }
 function activateHighlight(highlightedText) {
+    console.log(highlightedText);   
     $("#highlighter").html(highlightedText);
     $("#highlighter").css("pointer-events", "auto");
     textAreaScrollUpdate();
@@ -36,7 +37,10 @@ function activateHighlight(highlightedText) {
     }).each(function(){
         console.log(this);
         $(this).balloon({
-            content: this.getAttribute("definition")
+            contents: this.getAttribute("definition"),
+            css: {
+                fontSize: ".5rem"
+            }
         });
     });
 }
@@ -98,7 +102,14 @@ function undoHighlight() {
     $("#highlightUndoer").css("border", "");
 }
 
-function setupPage() {
+function addDefinitionBox(width, height, text) {
+    box = $(document.body.appendChild(document.createElement("div")));
+    box.css("width", "25%");
+    box.css("position", "absolute");
+    box.height(12);
+}
+
+$(function(){
     window.highlightActivated = false;
     $("#sendButton").click(highlightText);
     $("#sendButton").click(placeHighlighter);
@@ -106,11 +117,6 @@ function setupPage() {
     placeHighlighter();
     $(window).resize(placeHighlighter);
     $("#highlightUndoer").click(undoHighlight);
-}
+});
 
-function addDefinitionBox(width, height, text) {
-    box = $(document.body.appendChild(document.createElement("div")));
-    box.css("width", "25%");
-    box.css("position", "absolute");
-    box.height(12);
-}
+

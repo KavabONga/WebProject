@@ -4,6 +4,13 @@ from requests import get
 from bs4 import BeautifulSoup
 import re
 
+def ffilter(f, ar):
+    return list(filter(f, ar))
+
+
+def fmap(f, ar):
+    return list(map(f, ar))
+
 class Targeter:
     many_targeting = False
     @staticmethod
@@ -46,27 +53,32 @@ class TermListTargeter(Targeter):
 
 class WikiTargeter(Targeter):
     many_targeting = False
-    def match_word(self, word):
+    @staticmethod
+    def only_letters(word):
+        return ''.join(ffilter(lambda c : ord(c) >= ord('а') and ord(c) <= ord('я'), word.lower()))
+    def match_word(self, word, lim = 5):
         # print('Searching for ' + word)
         PARAMS = {
             'format' : 'json',
             'utf8' : '',
             'action':'opensearch',
             'search' : word,
-            'limit' : 2
+            'limit' : lim
         }
+        resp = get(self.wiki, PARAMS).json()
+        print(resp)
         try:
-            resp = get(self.wiki, PARAMS).json()
-            if resp[2][0].endswith(":"):
-                return {
-                    'link' : resp[3][1],
-                    'definition' : resp[2][1]
-                }
-            else:
-                return {
-                    'link' : resp[3][0],
-                    'definition' : resp[2][0]
-                }
+            for i in range(lim):
+                if resp[2][i].endswith(':') or len(resp[2][i].split()) <= 1:
+                    continue
+                res_word = WikiTargeter.only_letters(resp[1][i].split()[0])
+                print(word, res_word)
+                if self.stemmer.stem(res_word).lower() == self.stemmer.stem(word).lower():
+                    return {
+                        'definition' : resp[2][i],
+                        'link' : resp[3][i]
+                    }
+            return None
         except:
             return None
     def __init__(self, api='https://ru.wikipedia.org/w/api.php'):
