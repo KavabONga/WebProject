@@ -1,4 +1,4 @@
-# This is a Flask-powered server
+# This is a Flask-powered server   
 from flask import Flask, render_template, request, jsonify
 from werkzeug.datastructures import Headers
 import os
@@ -8,14 +8,18 @@ app = Flask(__name__, )
 MODES = ["Biology", "Geography", "Physics", "Wiki", "Wiktionary", "Astronomy"]
 # try:
 term_highlighter = TermHighlighter(MODES)
+#     print('SUCCESSFUL')
 # except:
 #     term_highlighter = None
 #     print("NOT SUCCESSFUL")
 
 # ToDo: Implement fast processing of Wiki requests
 
+print('APP READY')
+
 @app.route('/')
 def mainPage():
+    print()
     if term_highlighter is None:
         return render_template("mainPage.html", availableModes=MODES, status="Error loading resources", statusColor = "red")
     else:

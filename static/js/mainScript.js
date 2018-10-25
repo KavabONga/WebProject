@@ -14,9 +14,6 @@ HTMLTextAreaElement.prototype.setLengthLimit = function(limit) {
         this.value = this.value.slice(0, limit);
     })
 }
-function textAreaScrollUpdate() {
-    $("#textInput").scrollTop($("#highlighter").scrollTop())
-}
 
 function status(value) {
     $("#status").html(value);
@@ -27,8 +24,6 @@ function statusColor(color) {
 function activateHighlight(highlightedText) {
     console.log(highlightedText);   
     $("#highlighter").html(highlightedText);
-    $("#highlighter").css("pointer-events", "auto");
-    textAreaScrollUpdate();
     window.highlightActivated = true;
     $("#highlightUndoer").prop("disabled", false);
     $("#highlightUndoer").css("border", "3px solid red");
@@ -65,7 +60,7 @@ function highlightText() {
         timeout: reqTimeout,
         data: {
             mode: $("#modeSelect").val(),
-            text: $("#textInput").val()
+            text: $("#highlighter").text()
         },
         success: function(result) {
             //console.log(result); // Just for debugging
@@ -83,21 +78,11 @@ function highlightText() {
         }
     })
 }
-function placeHighlighter() {
-    let h = $('#highlighter');
-    let inp = $('#textInput');
-    h.offset(inp.offset());
-    h.innerWidth(inp.innerWidth());
-    h.innerHeight(inp.innerHeight());
-    h.scrollTop(inp.scrollTop());
-}
-
 function undoHighlight() {
     if (!window.highlightActivated)
         return;
     window.highlightActivated = false;
-    $("#highlighter").html("");
-    $("#highlighter").css("pointer-events", "none");
+    $("#highlighter").html($("#highlighter").text());
     $("#highlightUndoer").prop("disabled", true);
     $("#highlightUndoer").css("border", "");
 }
@@ -112,10 +97,6 @@ function addDefinitionBox(width, height, text) {
 $(function(){
     window.highlightActivated = false;
     $("#sendButton").click(highlightText);
-    $("#sendButton").click(placeHighlighter);
-    $("#highlighter").scroll(textAreaScrollUpdate);
-    placeHighlighter();
-    $(window).resize(placeHighlighter);
     $("#highlightUndoer").click(undoHighlight);
 });
 

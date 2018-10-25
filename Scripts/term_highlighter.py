@@ -1,11 +1,11 @@
 from Scripts import searchers, targeter
+import multiprocessing as mp
 
 SEARCHERS = {
     "Biology" : searchers.BiologySearcher,
     "Geography" : searchers.GeographySearcher,
     "Physics" : searchers.PhysicalSearcher,
     "Astronomy" : searchers.AstronomicalSearcher
-    # TODO: Astronomical searcher, Wikipedia searcher
 }
 
 class TermHighlighter:
@@ -15,16 +15,33 @@ class TermHighlighter:
             return word
         else:
             if definition is None:
-                return "<a href=\"{}\"><high>{}</high></a>".format(term_link, word)
+                return "<a href=\"{}\" contenteditable=\"false\"><high>{}</high></a>".format(term_link, word)
             else:
-                return "<a href=\"{}\"><high definition=\"{}\">{}</high></a>".format(term_link, definition, word)
+                return "<a href=\"{}\" contenteditable=\"false\"><high definition=\"{}\">{}</high></a>".format(term_link, definition, word)
+    @staticmethod
+    def get_mode_links(mode):
+        if mode not in SEARCHERS:
+            return None
+        print("Trying to get " + mode)
+        links = SEARCHERS[mode].get_term_links()
+        print("Got " + mode)
+        return links
     def __init__(self, modes):
-        self.searchers_dict = {k : SEARCHERS[k].get_term_links() for k in modes if k in SEARCHERS}
+        self.searchers_dict = {}
+        q = mp.Pool()
+        results = q.map(TermHighlighter.get_mode_links, modes)
+        for i in range(len(modes)):
+            if results[i] is not None:
+                self.searchers_dict[modes[i]] = results[i]
+        print("Done initialising")
         self.modes = modes
         self.targeter = None
     def use_mode(self, mode):
         if mode in self.searchers_dict:
-            self.targeter = targeter.TermListTargeter(self.searchers_dict.get(mode, None))
+            definition_getter = None
+            if SEARCHERS[mode].can_get_definition:
+                definition_getter = SEARCHERS[mode].get_definition
+            self.targeter = targeter.TermListTargeter(self.searchers_dict.get(mode), definition_getter)
         elif mode == 'Wiki' and mode in self.modes:
             self.targeter = targeter.WikiTargeter()
         elif mode == 'Wiktionary' and mode in self.modes:
@@ -46,11 +63,12 @@ class TermHighlighter:
     def highlight_many(self, text):
         form_text, words = TermHighlighter.choose_words(text)
         matches = self.targeter.match_words(words)
+        print(matches)
         if matches is not None:
             res = []
             for w in words:
-                if w in matches:
-                    res.append(TermHighlighter.highlight_term(w, matches[w]['link'], matches[w]['definition']))
+                if w.lower() in matches:
+                    res.append(TermHighlighter.highlight_term(w, matches[w.lower()]['link'], matches[w.lower()]['definition']))
                 else:
                     res.append(w)
             return form_text.format(*res)

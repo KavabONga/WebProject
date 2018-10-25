@@ -64,12 +64,11 @@ body {
 }
 
 #highlighter {
+    width: 100%;
+    height: 100%;
     padding: 0;
     resize: none;
-    position: absolute;
-    pointer-events: none;
-    /*background-color: transparent;
-    color: transparent;*/
+    background-color: white;
     box-sizing:border-box;
     overflow-x: hidden;
 

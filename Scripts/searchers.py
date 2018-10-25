@@ -11,9 +11,10 @@ def fmap(f, ar):
     return list(map(f, ar))
 
 class TermLink:
-    def __init__(self, word, link):
+    def __init__(self, word, link, definition = None):
         self.word = word
         self.link = link
+        self.definition = definition
     def __str__(self):
         return "{{word={} link=\"{}\"}}".format(self.word, self.link)
 class ManyTermsLink:
@@ -27,15 +28,15 @@ class ManyTermsLink:
         return [TermLink(w, self.link) for w in self.words]
 
 class Searcher:
-    mainApiPage = ""
-
+    main_api_page = ""
+    can_get_definition = False
     # Returns only the singular-word terms
     # (Maybe sometime I'll be able to highlight double-word terms, but i'd need ML for that)
     @staticmethod
     def split_words(line):
         return fmap(lambda x: x.strip(' '), re.split('[\\.,]', line))
 
-    # Returns list of TermLinks extracted from mainApiPage
+    # Returns list of TermLinks extracted from main_api_page
     @classmethod
     def get_term_links(cls):
         pass
@@ -45,11 +46,11 @@ class Searcher:
 
 
 class BiologySearcher(Searcher):
-    mainApiPage = "https://licey.net/free/6-biologiya/25-slovar_biologicheskih_terminov.html"
-
+    main_api_page = "https://licey.net/free/6-biologiya/25-slovar_biologicheskih_terminov.html"
+    can_get_definition = True
     @classmethod
     def get_term_links(cls):
-        soup = BeautifulSoup(requests.get(cls.mainApiPage).text, 'html.parser')
+        soup = BeautifulSoup(requests.get(cls.main_api_page).text, 'html.parser')
         a_tags = soup.findAll('a')
         right_tags = ffilter(
             lambda s: s.text.capitalize() == s.text and \
@@ -61,20 +62,24 @@ class BiologySearcher(Searcher):
         )
         pre_link = "https://licey.net"
         return fmap(
-            lambda a: TermLink(a.text, pre_link + a.get('href')),
+            lambda a: TermLink(a.text, pre_link + a.get('href')),#, cls.get_definition(pre_link + a.get('href'))),
             right_tags
         )
     @classmethod
     def get_definition(cls, url):
-        dicts = BeautifulSoup(requests.get(url)).findAll("'.")
+        p = BeautifulSoup(requests.get(url).content, 'html.parser').find('p', {'class' : 'slovarP'})
+        if p is None:
+            return None
+        else:
+            return p.text
 
 
 
 class GeographySearcher(Searcher):
-    mainApiPage="http://www.ecosystema.ru/07referats/slovgeo/index.htm"
+    main_api_page="http://www.ecosystema.ru/07referats/slovgeo/index.htm"
     @classmethod
     def get_term_links(cls):
-        soup=BeautifulSoup(requests.get(cls.mainApiPage).text, 'html.parser')
+        soup=BeautifulSoup(requests.get(cls.main_api_page).text, 'html.parser')
         a_tags=soup.findAll("a")
         right_tags=ffilter(
             lambda s: s.get('href') is not None and \
@@ -88,36 +93,31 @@ class GeographySearcher(Searcher):
             right_tags
         )
 class PhysicalSearcher(Searcher):
-    mainApiPage='https://ru.wiktionary.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%A4%D0%B8%D0%B7%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5_%D1%82%D0%B5%D1%80%D0%BC%D0%B8%D0%BD%D1%8B/ru'
+    main_api_page='http://www.physics.org.ua/info/voc/a.html'
     @classmethod
-    def is_correct_physical_link(cls, a):
-        if cls.is_word(a.text) is None:
-            return False
-        return a.get('href') is not None and \
-               a.get('href').startswith('/wiki') and \
-               a.get('class') is None
+    def ok_term_name(cls, word):
+        return re.match(r'^[А-Я]+$', word)
     @classmethod
-    def is_link_to_next(cls, a):
-        return a.text == "Следующая страница"
-    @classmethod
-    def get_next_physical_links(cls, page):
-        soup = BeautifulSoup(requests.get(page).text, 'html.parser')
-        a_tags = soup.findAll('a')
-        right_tags = ffilter(cls.is_correct_physical_link, a_tags)
-        link_next = ffilter(cls.is_link_to_next, a_tags)
-        if len(link_next) > 0:
-            return right_tags + cls.get_next_physical_links('https://ru.wiktionary.org' + link_next[0].get('href'))
-        else:
-            return right_tags
+    def term_links_from_url(cls, url):
+        lines = BeautifulSoup(requests.get(url).content, 'html.parser').findAll('p', {'class' : 'MsoNormal'})
+        res = []
+        for line in lines:
+            if len(line.text.split()) == 0:
+                continue
+            first_word = line.text.split()[0]
+            if cls.ok_term_name(first_word):
+                res.append(TermLink(first_word.lower(), url, line.text))
+        return res
     @classmethod
     def get_term_links(cls):
-        links = cls.get_next_physical_links(cls.mainApiPage)
-        return fmap(
-            lambda a: TermLink(a.text, 'https://ru.wiktionary.org' + a.get('href')),
-            links
-        )
+        pages = BeautifulSoup(requests.get(cls.main_api_page).content, 'html.parser').find('marquee').findAll('a')
+        res = []
+        pre_link = 'http://www.physics.org.ua/info/voc/'
+        for i in pages:
+            res += cls.term_links_from_url(pre_link + i.get('href'))
+        return res
 class AstronomicalSearcher(Searcher):
-    mainApiPage = 'http://www.astronet.ru/db/glossary/_e1'
+    main_api_page = 'http://www.astronet.ru/db/glossary/_e1'
     @classmethod
     def termlinks_from_url(cls, url):
         if url is None:
@@ -130,8 +130,8 @@ class AstronomicalSearcher(Searcher):
         return [TermLink(a.text, pre_link + a.get('href')) for a in a_list]
     @classmethod
     def get_term_links(cls):
-        b = BeautifulSoup(requests.get(cls.mainApiPage).content, 'html.parser')
-        termlinks = cls.termlinks_from_url(cls.mainApiPage)
+        b = BeautifulSoup(requests.get(cls.main_api_page).content, 'html.parser')
+        termlinks = cls.termlinks_from_url(cls.main_api_page)
         letter_links = ffilter(
             lambda a : len(a.text) == 1 and \
              ord('А') <= ord(a.text) <= ord('Я'),
@@ -145,3 +145,6 @@ class AstronomicalSearcher(Searcher):
             if k != 'А':
                 termlinks += cls.termlinks_from_url(v)
         return termlinks
+
+if __name__ == '__main__':
+    print(PhysicalSearcher.get_term_links())
