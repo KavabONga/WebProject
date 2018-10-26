@@ -22,7 +22,6 @@ class TermHighlighter:
     def get_mode_links(mode):
         if mode not in SEARCHERS:
             return None
-        print("Trying to get " + mode)
         links = SEARCHERS[mode].get_term_links()
         print("Got " + mode)
         return links

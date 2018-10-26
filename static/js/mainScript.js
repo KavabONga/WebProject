@@ -87,13 +87,6 @@ function undoHighlight() {
     $("#highlightUndoer").css("border", "");
 }
 
-function addDefinitionBox(width, height, text) {
-    box = $(document.body.appendChild(document.createElement("div")));
-    box.css("width", "25%");
-    box.css("position", "absolute");
-    box.height(12);
-}
-
 $(function(){
     window.highlightActivated = false;
     $("#sendButton").click(highlightText);

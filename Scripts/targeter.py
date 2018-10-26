@@ -27,7 +27,7 @@ class Targeter:
         return cls.many_targeting
 
 class TermListTargeter(Targeter):
-    many_targeting = False
+    many_targeting = True
     @staticmethod
     def to_term_searcher(terms_links, stemmer):
         future_links_searcher = {}
@@ -43,12 +43,21 @@ class TermListTargeter(Targeter):
             definition = match.definition
             if self.get_definition is not None and definition is None:
                 definition = self.get_definition(match.link)
-            print(definition)
+            # print(definition)
+            if (definition is not None) and (len(definition) > 200):
+                definition = definition[:200] + '...'
             return {
                 'link' : match.link,
                 'definition' : definition
             }
-
+    def match_words(self, words):
+        q = mp.Pool()
+        matches = q.map(self.match_word, words)
+        res = {}
+        for i in range(len(words)):
+            if matches[i] is not None:
+                res[words[i]] = matches[i]
+        return res
     def __init__(self, terms_links, definition_getter = None):
         self.stemmer = RussianStemmer()
         self.term_searcher = TermListTargeter.to_term_searcher(terms_links, self.stemmer)
