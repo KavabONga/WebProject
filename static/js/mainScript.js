@@ -1,19 +1,3 @@
-String.prototype.replaceAll = function(sub, nsub) {
-    return this.split(sub).join(nsub);
-}
-String.prototype.format = function() {
-    var str = this;
-    for (var i in arguments) {
-        str = str.replaceAll('{' + i + '}', arguments[i]);
-    }
-    return str;
-}
-
-HTMLTextAreaElement.prototype.setLengthLimit = function(limit) {
-    this.on("input", function() {
-        this.value = this.value.slice(0, limit);
-    })
-}
 
 function status(value) {
     $("#status").html(value);
@@ -24,10 +8,7 @@ function statusColor(color) {
 function activateHighlight(highlightedText) {
     console.log(highlightedText);   
     $("#highlighter").html(highlightedText);
-    window.highlightActivated = true;
-    $("#highlightUndoer").prop("disabled", false);
-    $("#highlightUndoer").css("border", "3px solid red");
-    $("high").filter(function(){
+    $(".termlink").filter(function(){
         return this.hasAttribute('definition');
     }).each(function(){
         console.log(this);
@@ -79,18 +60,18 @@ function highlightText() {
     })
 }
 function undoHighlight() {
-    if (!window.highlightActivated)
-        return;
-    window.highlightActivated = false;
     $("#highlighter").html($("#highlighter").text());
-    $("#highlightUndoer").prop("disabled", true);
-    $("#highlightUndoer").css("border", "");
 }
 
 $(function(){
-    window.highlightActivated = false;
     $("#sendButton").click(highlightText);
     $("#highlightUndoer").click(undoHighlight);
+    new ClipboardJS('#htmler', {
+        text : function() {
+            console.log($("#highlighter").html());
+            return $("#highlighter").html();
+        }
+    })
 });
 
 

@@ -82,7 +82,7 @@ body {
     border-radius:10px;
 }
 
-high {
+.termlink {
     background-color: rgb(255, 170, 170);
 }
 
@@ -97,7 +97,7 @@ high {
 }
 
 #upperPart {
-    height:90%;
+    height:70%;
 }
 
 #modeSelect {
@@ -106,8 +106,9 @@ high {
 }
 #lowerPart {
     height:10%;
+    margin-bottom: 5%;
 }
-#highlightUndoer {
+#lowerPart button {
     width:100%;
     font-size:2vh;
 }

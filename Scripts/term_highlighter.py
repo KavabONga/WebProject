@@ -15,9 +15,9 @@ class TermHighlighter:
             return word
         else:
             if definition is None:
-                return "<a href=\"{}\" contenteditable=\"false\"><high>{}</high></a>".format(term_link, word)
+                return "<a href=\"{}\" class=\"termlink\" contenteditable=\"false\">{}</a>".format(term_link, word)
             else:
-                return "<a href=\"{}\" contenteditable=\"false\"><high definition=\"{}\">{}</high></a>".format(term_link, definition, word)
+                return "<a href=\"{}\" class=\"termlink\" contenteditable=\"false\" definition=\"{}\">{}</a>".format(term_link, definition, word)
     @staticmethod
     def get_mode_links(mode):
         if mode not in SEARCHERS:
