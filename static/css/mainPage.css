@@ -112,3 +112,14 @@ body {
     width:100%;
     font-size:2vh;
 }
+
+#githubLink {
+    margin: 2% auto;
+    display: block;
+    width : 50%;
+}
+#githubLink img {
+    width : 100%;
+    margin : auto;
+    display: block;
+}

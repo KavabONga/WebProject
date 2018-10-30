@@ -5,7 +5,7 @@ import os
 from Scripts.term_highlighter import TermHighlighter
 
 app = Flask(__name__, )
-MODES = ["Biology", "Geography", "Physics", "Wiki", "Wiktionary", "Astronomy"]
+MODES = ["Biology", "Geography", "Physics", "Astronomy", "Wiki", "Wiktionary"]
 # try:
 term_highlighter = TermHighlighter(MODES)
 #     print('SUCCESSFUL')

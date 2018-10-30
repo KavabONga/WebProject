@@ -76,7 +76,6 @@ class TermHighlighter:
             return text
     @staticmethod
     def choose_words(text, seps=list('\n\t .,/\\<>!@"\'#$%^&*()[]{}:;~`|+') + ['- ', ' -']):
-        print(seps)
         for s in seps:
             if s in text:
                 ss, ww = [], []
