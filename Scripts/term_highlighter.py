@@ -50,10 +50,10 @@ class TermHighlighter:
             return self.highlight_many(text)
         else:
             return self.highlight_single(text)
-    def highlight_single(self, text, seps='.,?!- <>()[]"\'{}#;*:\n\t'):
+    def highlight_single(self, text):
         for s in seps:
             if s in text:
-                return s.join([self.highlight_text(t) for t in text.split(s)])
+                return s.join([self.choose_words(t) for t in text.split(s)])
         parsed_word = self.targeter.match_word(text)
         if parsed_word is None:
             return text
@@ -61,6 +61,7 @@ class TermHighlighter:
             return TermHighlighter.highlight_term(text, parsed_word['link'], parsed_word['definition'])
     def highlight_many(self, text):
         form_text, words = TermHighlighter.choose_words(text)
+        print(form_text, words)
         matches = self.targeter.match_words(words)
         print(matches)
         if matches is not None:
@@ -74,7 +75,8 @@ class TermHighlighter:
         else:
             return text
     @staticmethod
-    def choose_words(text, seps='.,?!- <>()[]"\'{}#;*:\n\t'):
+    def choose_words(text, seps=list('\n\t .,/\\<>!@"\'#$%^&*()[]{}:;~`|+') + ['- ', ' -']):
+        print(seps)
         for s in seps:
             if s in text:
                 ss, ww = [], []

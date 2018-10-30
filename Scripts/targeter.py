@@ -32,16 +32,16 @@ class TermListTargeter(Targeter):
     def to_term_searcher(terms_links, stemmer):
         future_links_searcher = {}
         for t in terms_links:
-            future_links_searcher[stemmer.stem(t.word)] = t
+            future_links_searcher[stemmer.stem(t.word.lower())] = t
         return future_links_searcher
 
     def match_word(self, word):
-        match = self.term_searcher.get(self.stemmer.stem(word))
+        match = self.term_searcher.get(self.stemmer.stem(word.lower()))
         if match is None:
             return None
         else:
             definition = match.definition
-            if self.get_definition is not None and definition is None:
+            if (self.get_definition is not None) and (definition is None):
                 definition = self.get_definition(match.link)
             # print(definition)
             if (definition is not None) and (len(definition) > 200):
@@ -55,8 +55,9 @@ class TermListTargeter(Targeter):
         matches = q.map(self.match_word, words)
         res = {}
         for i in range(len(words)):
+            print(matches[i])
             if matches[i] is not None:
-                res[words[i]] = matches[i]
+                res[words[i].lower()] = matches[i]
         return res
     def __init__(self, terms_links, definition_getter = None):
         self.stemmer = RussianStemmer()
@@ -111,7 +112,7 @@ class WiktionaryTargeter(Targeter):
     def get_links(self, words):
         PARAMS = {
             'action' : 'query',
-            'titles' : ('|'.join(words)).lower(),
+            'titles' : ('|'.join(words)),
             'prop' : 'info',
             'inprop' : 'url',
             'format' : 'json'
@@ -119,11 +120,12 @@ class WiktionaryTargeter(Targeter):
         resp = get(self.wiktionary, PARAMS).json()['query']['pages']
         word_dict = {}
         for k, v in resp.items():
+            print(k, v)
             if int(k) >= 0:
                 word_dict[v['title']] = v.get('fullurl')
         return [word_dict.get(w) for w in words]
     def match_words(self, words):
-        words = list(set(map(lambda x : x.lower(), filter(lambda x : re.match(r'^[а-яА-Я](([а-яА-Я]|\-)+[а-яА-Я])?$', x), words))))
+        words = list(set(map(lambda x : x.lower(), filter(lambda x : re.match(r'^[а-яё](([а-яё]|\-)+[а-яё])?$', x.lower()), words))))
         print(words)
         links = []
         for i in range(0, len(words), self.words_per_request):

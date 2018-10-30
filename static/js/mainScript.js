@@ -15,7 +15,8 @@ function activateHighlight(highlightedText) {
         $(this).balloon({
             contents: this.getAttribute("definition"),
             css: {
-                fontSize: ".5rem"
+                fontSize: ".5rem",
+                pointerEvents: "none"
             }
         });
     });
@@ -33,9 +34,7 @@ function highlightText() {
         window.timer = (window.timer + 1) % 3;
     }, 500)
     $("#sendButton").prop("disabled", true);
-    var reqTimeout = 10000;
-    if ($("#modeSelect").val() == "Wiki")
-        reqTimeout = 0;+
+    var reqTimeout = 0;
     $.ajax({
         url: "/highlightWithMode",
         timeout: reqTimeout,
@@ -44,7 +43,7 @@ function highlightText() {
             text: $("#highlighter").text()
         },
         success: function(result) {
-            //console.log(result); // Just for debugging
+            console.log(result); // Just for debugging
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
             status("Done");

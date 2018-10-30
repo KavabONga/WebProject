@@ -106,7 +106,7 @@ class PhysicalSearcher(Searcher):
         lines = BeautifulSoup(requests.get(url).content, 'html.parser').findAll('p', {'class' : 'MsoNormal'})
         res = []
         for line in lines:
-            if len(line.text.split()) == 0:
+            if len(line.text.split()) <= 1:
                 continue
             first_word = line.text.split()[0]
             if cls.ok_term_name(first_word):
@@ -162,5 +162,5 @@ class AstronomicalSearcher(Searcher):
     def get_definition(cls, url):
         return BeautifulSoup(requests.get(url).content.decode('windows-1251')).find('span', {'itemprop' : 'definition'}).text
 if __name__ == '__main__':
-    for t in AstronomicalSearcher.get_term_links():
+    for t in PhysicalSearcher.get_term_links():
         print(t.word, t.link)
