@@ -1,8 +1,8 @@
-
-function status(value) {
+redStatus = "red"
+yellowStatus = "rgb(246, 155, 48)"
+greenStatus = "rgb(94, 228, 11)"
+function status(value, color) {
     $("#status").html(value);
-}
-function statusColor(color) {
     $("#status").css("color", color);
 }
 function activateHighlight(highlightedText) {
@@ -24,8 +24,7 @@ function activateHighlight(highlightedText) {
 
 function highlightText() {
     if (!$("#modeSelect").val()) {
-        status("No mode specified");
-        statusColor("rgb(246, 155, 48)")
+        status("No mode specified", yellowStatus);
         return;
     }
     window.timer = 0;
@@ -46,14 +45,12 @@ function highlightText() {
             console.log(result); // Just for debugging
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
-            status("Done");
-            statusColor("rgb(94, 228, 11)");
+            status("Done", greenStatus);
             $("#sendButton").prop("disabled", false);
         },
         error: function(xhr, message) {
             clearInterval(window.loadAnimationId);
-            status("Error: " + message);
-            statusColor("red");
+            status("Error: " + message, redStatus);
             $("#sendButton").prop("disabled", false);
         }
     })
@@ -68,6 +65,7 @@ $(function(){
     new ClipboardJS('#htmler', {
         text : function() {
             console.log($("#highlighter").html());
+            status("Copied!", greenStatus);
             return $("#highlighter").html();
         }
     })
