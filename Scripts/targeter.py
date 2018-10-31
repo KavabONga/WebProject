@@ -94,9 +94,6 @@ class WikiTargeter(Targeter):
             return None
         except:
             return None
-    @staticmethod
-    def put_match_to_queue(word, queue, lim = 5):
-        queue.put((word, self.match_word(word, lim)))
     def match_words(self, words, lim = 5):
         q = mp.Pool()
         results = q.map(self.match_word, words)
@@ -106,31 +103,31 @@ class WikiTargeter(Targeter):
         self.stemmer = RussianStemmer()
 class WiktionaryTargeter(Targeter):
     many_targeting = True
-    def __init__(self, api='https://ru.wiktionary.org/w/api.php', words_per_request = 50):
-        self.wiktionary = api
-        self.words_per_request = words_per_request
-    def get_links(self, words):
+    @staticmethod
+    def only_letters(word):
+        return ''.join(ffilter(lambda c : ord(c) >= ord('а') and ord(c) <= ord('я'), word.lower()))
+    def match_word(self, word, lim = 5):
+        # print('Searching for ' + word)
         PARAMS = {
-            'action' : 'query',
-            'titles' : ('|'.join(words)),
-            'prop' : 'info',
-            'inprop' : 'url',
-            'format' : 'json'
+            'format' : 'json',
+            'utf8' : '',
+            'action':'opensearch',
+            'search' : word,
+            'limit' : lim
         }
-        resp = get(self.wiktionary, PARAMS).json()['query']['pages']
-        word_dict = {}
-        for k, v in resp.items():
-            print(k, v)
-            if int(k) >= 0:
-                word_dict[v['title']] = v.get('fullurl')
-        return [word_dict.get(w) for w in words]
-    def match_words(self, words):
-        words = list(set(map(lambda x : x.lower(), filter(lambda x : re.match(r'^[а-яё](([а-яё]|\-)+[а-яё])?$', x.lower()), words))))
-        print(words)
-        links = []
-        for i in range(0, len(words), self.words_per_request):
-            links += self.get_links(words[i : i + self.words_per_request])
-        if links is None:
-            return links
-        else:
-            return {words[i] : {'link' : links[i], 'definition' : None} for i in range(len(words)) if links[i] is not None}
+        resp = get(self.wiktionary, PARAMS).json()
+        print(resp)
+        try:
+            return {
+                'link':resp[3][0],
+                'definition': None
+            }
+        except:
+            return None
+    def match_words(self, words, lim = 5):
+        q = mp.Pool()
+        results = q.map(self.match_word, words)
+        return {words[i] : results[i] for i in range(len(words)) if results[i] is not None}
+    def __init__(self, api='https://ru.wiktionary.org/w/api.php'):
+        self.wiktionary = api
+        self.stemmer = RussianStemmer()

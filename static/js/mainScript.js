@@ -6,7 +6,7 @@ function status(value, color) {
     $("#status").css("color", color);
 }
 function activateHighlight(highlightedText) {
-    console.log(highlightedText);   
+    console.log(highlightedText);
     $("#highlighter").html(highlightedText);
     $(".termlink").filter(function(){
         return this.hasAttribute('definition');
@@ -29,7 +29,7 @@ function highlightText() {
     }
     window.timer = 0;
     window.loadAnimationId = setInterval(function() {
-        status("Requesting highlight" + ".".repeat(window.timer + 1));
+        status("Requesting highlight" + ".".repeat(window.timer + 1), greenStatus);
         window.timer = (window.timer + 1) % 3;
     }, 500)
     $("#sendButton").prop("disabled", true);
@@ -46,6 +46,9 @@ function highlightText() {
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
             status("Done", greenStatus);
+            if ($(".termlink").length == 0) {
+		    	status("Nothing to highlight", yellowStatus);
+		    }
             $("#sendButton").prop("disabled", false);
         },
         error: function(xhr, message) {
