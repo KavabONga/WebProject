@@ -95,7 +95,7 @@ class GeographySearcher(Searcher):
         )
     @classmethod
     def get_definition(cls, url):
-        return BeautifulSoup(requests.get(url, 'html.parser').content).find('span', {'itemprop' : 'definition'}).text
+        return BeautifulSoup(requests.get(url).content, 'html.parser').find('span', {'itemprop' : 'definition'}).text
 class PhysicalSearcher(Searcher):
     main_api_page='http://www.physics.org.ua/info/voc/a.html'
     @classmethod
@@ -110,7 +110,7 @@ class PhysicalSearcher(Searcher):
                 continue
             first_word = line.text.split()[0]
             if cls.ok_term_name(first_word):
-                res.append(TermLink(first_word.lower(), url, line.text))
+                res.append(TermLink(first_word, url, line.text))
         return res
     @classmethod
     def get_term_links(cls):
@@ -153,14 +153,18 @@ class AstronomicalSearcher(Searcher):
         letter_dict = {}
         pre_link = 'http://www.astronet.ru'
         for l in letter_links:
-            letter_dict[l.text] = pre_link + l.get('href')
+            letter_dict[l.text.lower()] = pre_link + l.get('href')
         for k, v in letter_dict.items():
             if k != 'А':
                 termlinks += cls.termlinks_from_url(v)
         return termlinks
     @classmethod
     def get_definition(cls, url):
-        return BeautifulSoup(requests.get(url).content.decode('windows-1251')).find('span', {'itemprop' : 'definition'}).text
+        try:
+            return BeautifulSoup(requests.get(url).content.decode('windows-1251'), 'html.parser').find('span', {'itemprop' : 'definition'}).text
+        except:
+            print(url)
+            return None
 if __name__ == '__main__':
-    for t in PhysicalSearcher.get_term_links():
+    for t in AstronomicalSearcher.get_term_links():
         print(t.word, t.link)

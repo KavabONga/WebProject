@@ -29,14 +29,19 @@ class Targeter:
 class TermListTargeter(Targeter):
     many_targeting = True
     @staticmethod
+    def true_stem(stemmer, word):
+        while word != stemmer.stem(word):
+            word = stemmer.stem(word)
+        return word
+    @staticmethod
     def to_term_searcher(terms_links, stemmer):
         future_links_searcher = {}
         for t in terms_links:
-            future_links_searcher[stemmer.stem(t.word.lower())] = t
+            future_links_searcher[TermListTargeter.true_stem(stemmer, t.word.lower())] = t
         return future_links_searcher
 
     def match_word(self, word):
-        match = self.term_searcher.get(self.stemmer.stem(word.lower()))
+        match = self.term_searcher.get(TermListTargeter.true_stem(self.stemmer, word.lower()))
         if match is None:
             return None
         else:
@@ -55,7 +60,6 @@ class TermListTargeter(Targeter):
         matches = q.map(self.match_word, words)
         res = {}
         for i in range(len(words)):
-            print(matches[i])
             if matches[i] is not None:
                 res[words[i].lower()] = matches[i]
         return res

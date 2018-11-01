@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from Scripts import searchers, targeter
 import multiprocessing as mp
 
@@ -75,7 +77,7 @@ class TermHighlighter:
         else:
             return text
     @staticmethod
-    def choose_words(text, seps=list('\n\t .,/\\<>?!@"\'#$%^&*()[]{}:;~`|+«»') + ['- ', ' -']):
+    def choose_words(text, seps=list('\n\t .,/\\<>?!@"\'#$%^&*()[]{}:;~`|+' + u'Â«Â»') + ['- ', ' -']):
         for s in seps:
             if s in text:
                 ss, ww = [], []

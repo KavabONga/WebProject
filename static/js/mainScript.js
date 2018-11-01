@@ -1,17 +1,16 @@
 redStatus = "red"
 yellowStatus = "rgb(246, 155, 48)"
 greenStatus = "rgb(94, 228, 11)"
+highlightActive = false
 function status(value, color) {
     $("#status").html(value);
     $("#status").css("color", color);
 }
 function activateHighlight(highlightedText) {
-    console.log(highlightedText);
     $("#highlighter").html(highlightedText);
     $(".termlink").filter(function(){
         return this.hasAttribute('definition');
     }).each(function(){
-        console.log(this);
         $(this).balloon({
             contents: this.getAttribute("definition"),
             css: {
@@ -43,12 +42,16 @@ function highlightText() {
         },
         success: function(result) {
             console.log(result); // Just for debugging
+            highlightActive = true;
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
             status("Done", greenStatus);
             if ($(".termlink").length == 0) {
 		    	status("Nothing to highlight", yellowStatus);
+                highlightActive = false;
+                return;
 		    }
+            $("#highlighter").prop("contenteditable", false);
             $("#sendButton").prop("disabled", false);
         },
         error: function(xhr, message) {
@@ -60,11 +63,22 @@ function highlightText() {
 }
 function undoHighlight() {
     $("#highlighter").html($("#highlighter").text());
+    $("#highlighter").prop("contenteditable", true);
+    highlightActive = false;
+}
+
+function clearHTML() {
+    console.log($("#highlighter > *").length);
+    if ($("#highlighter > *").length > 0) {
+        console.log($("#highlighter > *"));
+        $("#highlighter").html($("#highlighter").text());
+    }
 }
 
 $(function(){
     $("#sendButton").click(highlightText);
     $("#highlightUndoer").click(undoHighlight);
+    $("#highlighter").on("paste", function(){setTimeout(clearHTML, 0)});
     new ClipboardJS('#htmler', {
         text : function() {
             console.log($("#highlighter").html());
