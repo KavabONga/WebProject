@@ -160,10 +160,15 @@ class AstronomicalSearcher(Searcher):
         return termlinks
     @classmethod
     def get_definition(cls, url):
-        try:
-            return BeautifulSoup(requests.get(url).content.decode('windows-1251'), 'html.parser').find('span', {'itemprop' : 'definition'}).text
-        except:
-            print(url)
+        b = BeautifulSoup(requests.get(url).content.decode('windows-1251'), 'html.parser')
+        definition = b.find('span', {'itemprop' : 'definition'})
+        if definition is not None:
+            return b.find('span', {'itemprop' : 'definition'}).text
+        else:
+            p_list = b.select("#content p")
+            for p in p_list:
+                if len(p.text.split()) > 5 and ord('А') <= ord(p.text[0]) <= ord('Я'):
+                    return p.text
             return None
 if __name__ == '__main__':
     for t in AstronomicalSearcher.get_term_links():
