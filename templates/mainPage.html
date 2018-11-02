@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href={{url_for('static', filename='css/mainPage.css')}}>
-    <script src={{url_for('static', filename='js/jquery.min.js')}}></script>
-    <script src={{url_for('static', filename='js/jquery.balloon.min.js')}}></script>
-    <script src={{url_for('static', filename='js/clipboard.min.js')}}></script>
-    <script src={{url_for('static', filename='js/mainScript.js')}}></script>
 </head>
 
 <body>
@@ -44,5 +40,9 @@
             <div id="status" style="color:{{statusColor}}">{{status}}</div>
         </div>
     </div>
+    <script src={{url_for('static', filename='js/jquery.min.js')}}></script>
+    <script src={{url_for('static', filename='js/jquery.balloon.min.js')}}></script>
+    <script src={{url_for('static', filename='js/clipboard.min.js')}}></script>
+    <script src={{url_for('static', filename='js/mainScript.js')}}></script>
 </body>
 </html>

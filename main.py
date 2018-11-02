@@ -17,6 +17,9 @@ term_highlighter = TermHighlighter(MODES)
 
 print('APP READY')
 
+def normalize_text(text):
+    return text.replace('\xa0', ' ')
+
 @app.route('/')
 def mainPage():
     print()
@@ -29,7 +32,7 @@ def highlightText():
     if term_highlighter is not None:
         term_highlighter.use_mode(request.args["mode"])
         response= {
-            "highlightedText":term_highlighter.highlight_text(request.args["text"])
+            "highlightedText":term_highlighter.highlight_text(normalize_text(request.args["text"]))
         }
         return jsonify(response)
     else:

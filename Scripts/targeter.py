@@ -101,7 +101,7 @@ class WikiTargeter(Targeter):
     def match_words(self, words, lim = 5):
         q = mp.Pool()
         results = q.map(self.match_word, words)
-        return {words[i] : results[i] for i in range(len(words)) if results[i] is not None}
+        return {words[i].lower() : results[i] for i in range(len(words)) if results[i] is not None}
     def __init__(self, api='https://ru.wikipedia.org/w/api.php'):
         self.wiki = api
         self.stemmer = RussianStemmer()
@@ -120,7 +120,6 @@ class WiktionaryTargeter(Targeter):
             'limit' : lim
         }
         resp = get(self.wiktionary, PARAMS).json()
-        print(resp)
         try:
             return {
                 'link':resp[3][0],
@@ -131,7 +130,7 @@ class WiktionaryTargeter(Targeter):
     def match_words(self, words, lim = 5):
         q = mp.Pool()
         results = q.map(self.match_word, words)
-        return {words[i] : results[i] for i in range(len(words)) if results[i] is not None}
+        return {words[i].lower() : results[i] for i in range(len(words)) if results[i] is not None}
     def __init__(self, api='https://ru.wiktionary.org/w/api.php'):
         self.wiktionary = api
         self.stemmer = RussianStemmer()

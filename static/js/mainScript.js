@@ -46,13 +46,13 @@ function highlightText() {
             activateHighlight(result.highlightedText);
             clearInterval(window.loadAnimationId);
             status("Done", greenStatus);
+            $("#sendButton").prop("disabled", false);
             if ($(".termlink").length == 0) {
 		    	status("Nothing to highlight", yellowStatus);
                 highlightActive = false;
                 return;
 		    }
             $("#highlighter").prop("contenteditable", false);
-            $("#sendButton").prop("disabled", false);
         },
         error: function(xhr, message) {
             clearInterval(window.loadAnimationId);
