@@ -4,5 +4,5 @@ The website detects any terms related to a particular science field and provides
 
 Powered by Python 3, Flask
 
-### Deprecated
-Some of the websites I used for link references have gone down so full functionality is not available
+### Deprecated 
+Some of the websites I used for link references have gone down so full functionality is not available :(
